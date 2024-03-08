@@ -31,11 +31,20 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "nrf24l01p.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+extern SPI_HandleTypeDef hspi2;
+extern TIM_HandleTypeDef htim2;
+
+#define NRF24L01P_PAYLOAD_LENGTH		2     // 1 - 32bytes nfsha in nrf.h
+#define DUTY_CYCLE						0
+#define NEXT_MOVE						1
+
+extern uint8_t tx_data[NRF24L01P_PAYLOAD_LENGTH];
+extern uint8_t rxBlue;
 
 /* USER CODE END ET */
 

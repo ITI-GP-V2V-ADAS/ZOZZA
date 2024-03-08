@@ -28,7 +28,7 @@
 #define IRQ_PORT						  GPIOB
 #define IRQ_NUMBER						  GPIO_PIN_9
 
-#define NRF24L01P_PAYLOAD_LENGTH          5     // 1 - 32bytes
+#define NRF24L01P_PAYLOAD_LENGTH          2     // 1 - 32bytes
 
 
 /* nRF24L01+ typedefs */

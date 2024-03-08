@@ -28,8 +28,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include "nrf24l01p.h"
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -40,8 +38,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-//#define TRANSMITTER
-#define RECEIVER
+#define TRANSMITTER
 
 /* USER CODE END PD */
 
@@ -53,19 +50,21 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-volatile static uint8_t recieved_flag = 0;
-uint8_t rx_data[NRF24L01P_PAYLOAD_LENGTH] = {0};
-uint8_t tx_data[NRF24L01P_PAYLOAD_LENGTH] = {"hala"};
+/***********BLE***********/
+uint8_t rxBlue='X';
+/***********BLE***********/
 
+/***********NRF***********/
+uint8_t tx_data[NRF24L01P_PAYLOAD_LENGTH] = {'X',0};
+/***********NRF***********/
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
-
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
-
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -105,15 +104,11 @@ int main(void)
   MX_TIM2_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+  nrf24l01p_tx_init(2500, _2Mbps);
 
-
-#ifdef RECEIVER
-  	nrf24l01p_rx_init(2500, _2Mbps);
-#endif
-
- #ifdef TRANSMITTER
-	nrf24l01p_tx_init(2500, _2Mbps);
- #endif
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+  HAL_UART_Receive_IT(&huart1,&rxBlue,1); // Enabling interrupt receive
 
   /* USER CODE END 2 */
 
@@ -134,13 +129,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-#ifdef TRANSMITTER
-
-	  nrf24l01p_tx_transmit(tx_data);
-#endif
-
-	  HAL_Delay(100);
-
   }
   /* USER CODE END 3 */
 }
@@ -197,15 +185,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	if(GPIO_Pin == IRQ_NUMBER )
 	{
-#ifdef RECEIVER
-	    nrf24l01p_rx_receive(rx_data);
-#endif
-
-#ifdef TRANSMITTER
 		nrf24l01p_tx_irq();
-#endif
 	}
-
+}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if(huart->Instance==USART1){
+		HAL_UART_Receive_IT(&huart1,&rxBlue,1); // Enabling interrupt receive again
+		tx_data[0] = rxBlue;
+	}
 }
 
 /* USER CODE END 4 */

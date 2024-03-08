@@ -73,7 +73,7 @@ osThreadId_t NRFtHandle;
 const osThreadAttr_t NRFt_attributes = {
   .name = "NRFt",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityHigh,
+  .priority = (osPriority_t) osPriorityRealtime1,
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -166,10 +166,56 @@ void CTRL(void *argument)
 {
   /* USER CODE BEGIN CTRL */
   /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
+  for(;;){
+  switch (rxBlue) {
+
+  case 70:	//forward 'F'
+  case 102:	//forward 'f'
+    HAL_GPIO_WritePin(MOTOR_1_GPIO_Port, MOTOR_1_Pin, 1);
+    HAL_GPIO_WritePin(MOTOR_2_GPIO_Port, MOTOR_2_Pin, 0);
+    HAL_GPIO_WritePin(MOTOR_3_GPIO_Port, MOTOR_3_Pin, 1);
+    HAL_GPIO_WritePin(MOTOR_4_GPIO_Port, MOTOR_4_Pin, 0);
+    break;
+
+  case 82:	//right 'R'
+  case 114:	//right 'R'
+    HAL_GPIO_WritePin(MOTOR_1_GPIO_Port, MOTOR_1_Pin, 0);
+    HAL_GPIO_WritePin(MOTOR_2_GPIO_Port, MOTOR_2_Pin, 1);
+    HAL_GPIO_WritePin(MOTOR_3_GPIO_Port, MOTOR_3_Pin, 1);
+    HAL_GPIO_WritePin(MOTOR_4_GPIO_Port, MOTOR_4_Pin, 0);
+    break;
+
+  case 76:	//left 'L'
+  case 108:	//left 'L'
+    HAL_GPIO_WritePin(MOTOR_1_GPIO_Port, MOTOR_1_Pin, 1);
+    HAL_GPIO_WritePin(MOTOR_2_GPIO_Port, MOTOR_2_Pin, 0);
+        HAL_GPIO_WritePin(MOTOR_3_GPIO_Port, MOTOR_3_Pin, 0);
+        HAL_GPIO_WritePin(MOTOR_4_GPIO_Port, MOTOR_4_Pin, 1);
+    break;
+
+  case 71:	//back 'G'
+  case 103:	//back 'g'
+    HAL_GPIO_WritePin(MOTOR_1_GPIO_Port, MOTOR_1_Pin, 0);
+        HAL_GPIO_WritePin(MOTOR_2_GPIO_Port, MOTOR_2_Pin, 1);
+        HAL_GPIO_WritePin(MOTOR_3_GPIO_Port, MOTOR_3_Pin, 0);
+        HAL_GPIO_WritePin(MOTOR_4_GPIO_Port, MOTOR_4_Pin, 1);
+    break;
+
+  case 88:	//stop 'X'
+        HAL_GPIO_WritePin(MOTOR_1_GPIO_Port, MOTOR_1_Pin, 0);
+        HAL_GPIO_WritePin(MOTOR_2_GPIO_Port, MOTOR_2_Pin, 0);
+        HAL_GPIO_WritePin(MOTOR_3_GPIO_Port, MOTOR_3_Pin, 0);
+        HAL_GPIO_WritePin(MOTOR_4_GPIO_Port, MOTOR_4_Pin, 0);
+    break;
+
+  default:
+    ///*send the next movement to ossa*/
+    //display[NEXT_MOVE] = rxData;
+    break;
+
   }
+	osDelay(1);
+	}
   /* USER CODE END CTRL */
 }
 
@@ -186,8 +232,19 @@ void SPEED(void *argument)
   /* Infinite loop */
   for(;;)
   {
+    if (rxBlue=='X') {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 0);
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, 0);
+  }else if (rxBlue=='F'||rxBlue=='G'||rxBlue=='L'||rxBlue=='R'){
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 900);
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, 900);
+  }else if (rxBlue=='f'||rxBlue=='g'||rxBlue=='l'||rxBlue=='r'){
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 400);
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, 400);
+  }
     osDelay(1);
   }
+
   /* USER CODE END SPEED */
 }
 
@@ -204,7 +261,9 @@ void NRF(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+	tx_data[0] = rxBlue;
+	nrf24l01p_tx_transmit(tx_data);
+    osDelay(500);
   }
   /* USER CODE END NRF */
 }
