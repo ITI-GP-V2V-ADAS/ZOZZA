@@ -235,12 +235,15 @@ void SPEED(void *argument)
     if (rxBlue=='X') {
       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 0);
       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, 0);
+      tx_data[DUTY_CYCLE] = 0;
   }else if (rxBlue=='F'||rxBlue=='G'||rxBlue=='L'||rxBlue=='R'){
       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 900);
       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, 900);
+      tx_data[DUTY_CYCLE] = 9;
   }else if (rxBlue=='f'||rxBlue=='g'||rxBlue=='l'||rxBlue=='r'){
       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 400);
       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, 400);
+      tx_data[DUTY_CYCLE] = 4;
   }
     osDelay(1);
   }
@@ -261,7 +264,7 @@ void NRF(void *argument)
   /* Infinite loop */
   for(;;)
   {
-	tx_data[0] = rxBlue;
+	tx_data[NEXT_MOVE] = rxBlue;
 	nrf24l01p_tx_transmit(tx_data);
     osDelay(500);
   }

@@ -55,7 +55,7 @@ uint8_t rxBlue='X';
 /***********BLE***********/
 
 /***********NRF***********/
-uint8_t tx_data[NRF24L01P_PAYLOAD_LENGTH] = {'X',0};
+uint8_t tx_data[NRF24L01P_PAYLOAD_LENGTH] = {0,'X'};
 /***********NRF***********/
 /* USER CODE END PV */
 
@@ -156,7 +156,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 84;
+  RCC_OscInitStruct.PLL.PLLN = 72;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -192,7 +192,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart->Instance==USART1){
 		HAL_UART_Receive_IT(&huart1,&rxBlue,1); // Enabling interrupt receive again
-		tx_data[0] = rxBlue;
 	}
 }
 
